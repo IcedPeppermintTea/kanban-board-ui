@@ -12,8 +12,6 @@ A drag-and-drop task management board built with React and TypeScript. Tasks can
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Project Structure](#project-structure)
-- [Key Concepts Used](#key-concepts-used)
-- [What I Learned](#what-i-learned)
 - [Roadmap](#roadmap)
 
 ---
