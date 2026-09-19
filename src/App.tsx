@@ -54,7 +54,7 @@ function App() {
   useEffect(() => {
   async function fetchTasks() {
     try {
-      const response = await fetch("http://localhost:3000/tasks");
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks`);
       const tasksFromApi = await response.json();
 
       setBoard((prevBoard) => {
@@ -83,7 +83,7 @@ function App() {
   // Add a new task to a column
   async function addTask(columnId: string, newTaskData: Omit<Task, "id">) {
   try {
-    const response = await fetch("http://localhost:3000/tasks", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -120,7 +120,7 @@ function App() {
   // Delete an existing task
   async function deleteTask(columnId: string, deleteTaskId: string) {
   try {
-    await fetch(`http://localhost:3000/tasks/${deleteTaskId}`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/tasks/${deleteTaskId}`, {
       method: "DELETE",
     });
 
@@ -206,7 +206,7 @@ function App() {
       setBoard({...board, columns: updatedColumns})
 
       // persist the column change to the database
-      fetch(`http://localhost:3000/tasks/${movedTask.id}`, {
+      fetch(`${import.meta.env.VITE_API_URL}/tasks/${movedTask.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ column_name: destColumn.id }),
