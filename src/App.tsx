@@ -81,28 +81,41 @@ function App() {
   }, []);
 
   // Add a new task to a column
-  function addTask(columnId: string, newTask: Task) {
-    // 1. copy the current columns to change the state
-    const updatedColumns: Column[] = board.columns.map(column => {
-      // 2. find the right column by using the columnId
+  async function addTask(columnId: string, newTaskData: Omit<Task, "id">) {
+  try {
+    const response = await fetch("http://localhost:3000/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: newTaskData.title,
+        priority: newTaskData.priority,
+        due_date: newTaskData.dueDate,
+        column_name: columnId,
+      }),
+    });
+
+    const createdTask = await response.json();
+
+    const newTask: Task = {
+      id: String(createdTask.id),
+      title: createdTask.title,
+      priority: createdTask.priority as Priority,
+      dueDate: createdTask.due_date,
+    };
+
+    const updatedColumns: Column[] = board.columns.map((column) => {
       if (column.id === columnId) {
-        // 3. add the task to that column's task set while keeping existing ones
-        const updatedTasks: Task[] = [...column.tasks, newTask]
-        // 4. update column to have the updated task set
-        const updatedColumn: Column = {...column, tasks:updatedTasks}
-        // 5. return the now changed column
-        return updatedColumn
+        const updatedTasks: Task[] = [...column.tasks, newTask];
+        return { ...column, tasks: updatedTasks };
       }
-      // 6. if not the right column - return existing column with no changes
-      return column
-    })
+      return column;
+    });
 
-    // 7. copy the board with the updated column set
-    const updatedBoard: BoardData = {...board, columns: updatedColumns}
-
-    // 8. update the state
-    setBoard(updatedBoard)
+    setBoard({ ...board, columns: updatedColumns });
+  } catch (error) {
+    console.error("Failed to add task:", error);
   }
+}
 
   // Delete an existing task
   function deleteTask(columnId: string, deleteTaskid: string) {
