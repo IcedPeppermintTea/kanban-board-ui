@@ -180,27 +180,18 @@ function App() {
     }
     // if dropped in a new column
     else {
-      // find the source column of the moved task
       const sourceColumn = board.columns.find(col => col.id === source.droppableId)
       if (!sourceColumn) return
 
-      // find destination column of the moved task
       const destColumn = board.columns.find(col => col.id === destination.droppableId)
       if (!destColumn) return
 
-      // copy the tasks of the source column
       const sourceTasks: Task[] = [...sourceColumn.tasks]
-
-      // copy the tasks of the destination column
       const destTasks: Task[] = [...destColumn.tasks]
-      
-      // remove the moved task from source
-      const [movedTask] = sourceTasks.splice(source.index, 1)
 
-      // insert moved task to destination
+      const [movedTask] = sourceTasks.splice(source.index, 1)
       destTasks.splice(destination.index, 0, movedTask)
 
-      // if changed column - update task set, else display column as is
       const updatedColumns: Column[] = board.columns.map(col => {
         if (col.id === sourceColumn.id) {
           return {...col, tasks: sourceTasks}
@@ -210,7 +201,18 @@ function App() {
         }
         return col
       })
+
+      // update UI immediately
       setBoard({...board, columns: updatedColumns})
+
+      // persist the column change to the database
+      fetch(`http://localhost:3000/tasks/${movedTask.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ column_name: destColumn.id }),
+      }).catch((err) => {
+        console.error("Failed to update task column:", err)
+      })
     }
   }
   
