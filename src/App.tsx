@@ -118,24 +118,28 @@ function App() {
 }
 
   // Delete an existing task
-  function deleteTask(columnId: string, deleteTaskid: string) {
-    // copy the columns
-    const updatedColumns: Column[] = board.columns.map(column => {
-      // if column of delete request - delete the task
-      if (column.id === columnId) {
-        // create new task set without the deleted task
-        const newTasks: Task[] = column.tasks.filter(task => task.id !== deleteTaskid)
-        // return the new set 
-        return {...column, tasks: newTasks}
-      }
-      // otherwise return the existing column
-      return column
-    })
+  async function deleteTask(columnId: string, deleteTaskId: string) {
+  try {
+    await fetch(`http://localhost:3000/tasks/${deleteTaskId}`, {
+      method: "DELETE",
+    });
 
-    // set the new columns
-    const updateBoard: BoardData = {...board, columns: updatedColumns}
-    setBoard(updateBoard)
+    const updatedColumns: Column[] = board.columns.map((column) => {
+      if (column.id === columnId) {
+        const newTasks: Task[] = column.tasks.filter(
+          (task) => task.id !== deleteTaskId
+        );
+        return { ...column, tasks: newTasks };
+      }
+      return column;
+    });
+
+    const updatedBoard: BoardData = { ...board, columns: updatedColumns };
+    setBoard(updatedBoard);
+  } catch (err) {
+    console.error("Failed to delete task:", err);
   }
+}
 
   // persist changes after dragging a task
   function onDragEnd(result: DropResult) {
