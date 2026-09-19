@@ -1,4 +1,4 @@
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import Board from "./components/Board.tsx"
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd"
 
@@ -30,14 +30,7 @@ const initialData: BoardData = {
     {
       id: "todo",
       title: "To Do",
-      tasks: [
-        {
-          id: "task-1",
-          title: "Learn React Hooks",
-          priority: "Medium",
-          dueDate: "None"
-        }
-      ]
+      tasks: []
     },
     {
       id: "in-progress",
@@ -56,6 +49,36 @@ const initialData: BoardData = {
 function App() {
 
   const [board, setBoard] = useState<BoardData>(initialData)
+
+  // retrieve all existing tasks 
+  useEffect(() => {
+  async function fetchTasks() {
+    try {
+      const response = await fetch("http://localhost:3000/tasks");
+      const tasksFromApi = await response.json();
+
+      setBoard((prevBoard) => {
+        const updatedColumns = prevBoard.columns.map((column) => ({
+          ...column,
+          tasks: tasksFromApi
+            .filter((task: any) => task.column_name === column.id)
+            .map((task: any) => ({
+              id: String(task.id),
+              title: task.title,
+              priority: task.priority as Priority,
+              dueDate: task.due_date,
+            })),
+        }));
+
+        return { ...prevBoard, columns: updatedColumns };
+      });
+    } catch (err) {
+      console.error("Failed to fetch tasks:", err);
+    }
+  }
+
+    fetchTasks();
+  }, []);
 
   // Add a new task to a column
   function addTask(columnId: string, newTask: Task) {
