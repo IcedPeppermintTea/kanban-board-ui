@@ -7,7 +7,7 @@ import { Droppable } from "@hello-pangea/dnd"
 // create the type that describes what the component will receive
 type ColumnProp = {
     column: ColumnData
-    addTask: (columnId: string, newTask: Task) => void
+    addTask: (columnId: string, newTask: Omit<Task, "id">) => void
     deleteTask: (columnId: string, deleteTaskId: string) => void
 }
 
